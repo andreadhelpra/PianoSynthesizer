@@ -7,6 +7,7 @@ window.onload = function () {
   let customWaveform = null;
   let sineTerms = null;
   let cosineTerms = null;
+  let distCheck = document.querySelector("input[name= 'dist']");
 
   let real1 = document.querySelector("input[name='first']");
   let real2 = document.querySelector("input[name='second']");
@@ -16,17 +17,20 @@ window.onload = function () {
 
   var keyboard = new QwertyHancock({
     id: "keyboard",
-    width: 800,
+    width: 600,
     height: 150,
-    octaves: 3,
+    octaves: 2,
   });
   var context = new AudioContext();
+
+  var distortionGainNode = context.createGain();
+  var distortion = context.createWaveShaper();
 
   volumeControl.addEventListener("change", changeVolume, false);
   masterVolume = context.createGain();
   masterVolume.gain.value = volumeControl.value;
   masterVolume.connect(context.destination);
-
+  console.log(distCheck.checked);
   var oscillators = {};
 
   //Create custom waveform
@@ -39,13 +43,13 @@ window.onload = function () {
   real5.addEventListener("change", changeReals, false);
 
   //create array of values chosen by the user
-  sineTerms = new Float32Array(
+  sineTerms = new Float32Array([
     real1.value,
     real2.value,
     real3.value,
     real4.value,
-    real5.value
-  );
+    real5.value,
+  ]);
 
   //initialized to 0
   cosineTerms = new Float32Array(sineTerms.length);
@@ -76,11 +80,23 @@ window.onload = function () {
       osc2.type = type2;
     }
 
+    distortion.curve = makeDistortionCurve(800);
+    distortion.oversample = "4x";
+
     osc.connect(masterVolume);
     osc2.connect(masterVolume);
 
     masterVolume.connect(context.destination);
-    //masterVolume.gain.linearRampToValueAtTime(0, context.currentTime + 3);
+    /*  masterVolume.connect(distortionGainNode);
+    distortionGainNode.connect(distortion);
+
+    distortion.connect(context.destination);
+ */
+
+    /*  if (context.currentTime + 2 == true) {
+      masterVolume.gain.linearRampToValueAtTime(0, context.currentTime);
+    }
+ */
     osc.frequency.value = frequency;
     osc2.frequency.value = frequency;
     oscillators[frequency] = [osc, osc2];
@@ -99,7 +115,7 @@ window.onload = function () {
   keyboard.keyUp = function (note, frequency) {
     oscillators[frequency].forEach(function (oscillator) {
       oscillator.stop(context.currentTime);
-      /*   masterVolume.gain.setValueAtTime(
+      /*    masterVolume.gain.setValueAtTime(
         volumeControl.value,
         context.currentTime
       ); */
@@ -119,4 +135,31 @@ window.onload = function () {
     cosineTerms = new Float32Array(sineTerms.length);
     customWaveform = context.createPeriodicWave(cosineTerms, sineTerms);
   }
+
+  function makeDistortionCurve(amount) {
+    var k = typeof amount === "number" ? amount : 50,
+      n_samples = 44100,
+      curve = new Float32Array(n_samples),
+      deg = Math.PI / 180,
+      i = 0,
+      x;
+    for (; i < n_samples; ++i) {
+      x = (i * 2) / n_samples - 1;
+      curve[i] = ((3 + k) * x * 20 * deg) / (Math.PI + k * Math.abs(x));
+    }
+    return curve;
+  }
+
+  //manipulates distortion
+  distCheck.onclick = function () {
+    if (distCheck.checked == true) {
+      masterVolume.connect(distortionGainNode);
+      distortionGainNode.connect(distortion);
+      distortion.connect(context.destination);
+    } else {
+      masterVolume.disconnect(distortionGainNode);
+      distortionGainNode.disconnect(distortion);
+      masterVolume.connect(context.destination);
+    }
+  };
 };
