@@ -87,16 +87,7 @@ window.onload = function () {
     osc2.connect(masterVolume);
 
     masterVolume.connect(context.destination);
-    /*  masterVolume.connect(distortionGainNode);
-    distortionGainNode.connect(distortion);
 
-    distortion.connect(context.destination);
- */
-
-    /*  if (context.currentTime + 2 == true) {
-      masterVolume.gain.linearRampToValueAtTime(0, context.currentTime);
-    }
- */
     osc.frequency.value = frequency;
     osc2.frequency.value = frequency;
     oscillators[frequency] = [osc, osc2];
