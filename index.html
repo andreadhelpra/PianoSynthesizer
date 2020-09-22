@@ -24,7 +24,10 @@
             list="volumes"
             name="volume"
           />
-         
+          <datalist id="volumes">
+            <option value="0.0" label="Mute">
+            <option value="1.0" label="100%">
+          </datalist>
         </div>
         <div class="right">
           <span>Waveform 1: </span>
@@ -55,7 +58,6 @@
             max="1.0"
             step="0.01"
             value="0.0"
-            list="first"
             name="first"
           />
           <span>2: </span>
@@ -65,7 +67,6 @@
             max="1.0"
             step="0.01"
             value="0.0"
-            list="second"
             name="second"
           />
           <span>3: </span>
@@ -75,7 +76,6 @@
             max="1.0"
             step="0.01"
             value="1.0"
-            list="third"
             name="third"
           />
           <span>4: </span>
@@ -85,7 +85,6 @@
             max="1.0"
             step="0.01"
             value="0.0"
-            list="fourth"
             name="fourth"
           />
           <span>5: </span>
@@ -94,10 +93,13 @@
             min="0.0"
             max="1.0"
             step="0.01"
-            value="1.0"
-            list="fifth"
+            value="1.0"          
             name="fifth"
-          />
+          /> 
+          </div>
+          <div>
+            <span>Distortion: </span>
+            <input type="checkbox" name="dist"/>
           </div>
         </div>
       </div>
