@@ -8,6 +8,8 @@ window.onload = function () {
   let sineTerms = null;
   let cosineTerms = null;
   let distCheck = document.querySelector("input[name= 'dist']");
+  let filterCheck = document.querySelector("input[name='filter']");
+  let filterFreq = document.querySelector("input[name='EQfrequency']");
 
   let real1 = document.querySelector("input[name='first']");
   let real2 = document.querySelector("input[name='second']");
@@ -22,7 +24,7 @@ window.onload = function () {
     octaves: 2,
   });
   var context = new AudioContext();
-
+  var eq = context.createBiquadFilter();
   var distortionGainNode = context.createGain();
   var distortion = context.createWaveShaper();
 
@@ -80,12 +82,8 @@ window.onload = function () {
       osc2.type = type2;
     }
 
-    distortion.curve = makeDistortionCurve(800);
-    distortion.oversample = "4x";
-
     osc.connect(masterVolume);
     osc2.connect(masterVolume);
-
     masterVolume.connect(context.destination);
 
     osc.frequency.value = frequency;
@@ -97,9 +95,19 @@ window.onload = function () {
     osc2.detune.value = 20;
 
     //DISTORTION
-    // WaveShaperNode
-    //IIFR filter
+    distortion.curve = makeDistortionCurve(800);
+    distortion.oversample = "4x";
 
+    //REVERB
+
+    //DELAY
+
+    //COMPRESSOR
+
+    //EQ
+    eq.frequency.value = filterFreq.value;
+
+    //start oscillator
     osc.start(context.currentTime);
     osc2.start(context.currentTime);
   };
@@ -150,6 +158,19 @@ window.onload = function () {
     } else {
       masterVolume.disconnect(distortionGainNode);
       distortionGainNode.disconnect(distortion);
+      masterVolume.connect(context.destination);
+    }
+  };
+
+  //manipulates EQ
+  filterCheck.onclick = function () {
+    if (filterCheck.checked == true) {
+      masterVolume.connect(eq);
+      eq.connect(context.destination);
+      console.log("filter OK");
+    } else {
+      masterVolume.disconnect(eq);
+      eq.disconnect(context.destination);
       masterVolume.connect(context.destination);
     }
   };
