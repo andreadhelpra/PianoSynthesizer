@@ -31,8 +31,7 @@ window.onload = function () {
   volumeControl.addEventListener("change", changeVolume, false);
   masterVolume = context.createGain();
   masterVolume.gain.value = volumeControl.value;
-  masterVolume.connect(context.destination);
-  console.log(distCheck.checked);
+
   var oscillators = {};
 
   //Create custom waveform
@@ -82,9 +81,13 @@ window.onload = function () {
       osc2.type = type2;
     }
 
+    fadeoutGain = context.createGain();
+    fadeoutGain.gain.value = masterVolume.gain.value;
+
     osc.connect(masterVolume);
     osc2.connect(masterVolume);
-    masterVolume.connect(context.destination);
+    masterVolume.connect(fadeoutGain);
+    fadeoutGain.connect(context.destination);
 
     osc.frequency.value = frequency;
     osc2.frequency.value = frequency;
@@ -110,14 +113,14 @@ window.onload = function () {
     //start oscillator
     osc.start(context.currentTime);
     osc2.start(context.currentTime);
+    fadeoutGain.gain.exponentialRampToValueAtTime(
+      0.00001,
+      context.currentTime + 6
+    ); // fade out
   };
   keyboard.keyUp = function (note, frequency) {
     oscillators[frequency].forEach(function (oscillator) {
       oscillator.stop(context.currentTime);
-      /*    masterVolume.gain.setValueAtTime(
-        volumeControl.value,
-        context.currentTime
-      ); */
     });
   };
   function changeVolume(event) {
@@ -158,7 +161,6 @@ window.onload = function () {
     } else {
       masterVolume.disconnect(distortionGainNode);
       distortionGainNode.disconnect(distortion);
-      masterVolume.connect(context.destination);
     }
   };
 
@@ -167,11 +169,9 @@ window.onload = function () {
     if (filterCheck.checked == true) {
       masterVolume.connect(eq);
       eq.connect(context.destination);
-      console.log("filter OK");
     } else {
       masterVolume.disconnect(eq);
       eq.disconnect(context.destination);
-      masterVolume.connect(context.destination);
     }
   };
 };

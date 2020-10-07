@@ -1,8 +1,14 @@
 body {
   font-family: sans-serif;
+  background-color: rgba(193, 197, 197, 0.555);
 }
 
 .container {
   margin: auto;
   width: 1000px;
+  display: inline-flex;
+  justify-content: left;
+}
+.chooseWaveform {
+  display: flex;
 }
