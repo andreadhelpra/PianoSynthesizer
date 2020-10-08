@@ -35,34 +35,22 @@ window.onload = function () {
   var oscillators = {};
 
   //Create custom waveform
-
-  //attach event listener to each real (or img) value
-  real1.addEventListener("change", changeReals, false);
-  real2.addEventListener("change", changeReals, false);
-  real3.addEventListener("change", changeReals, false);
-  real4.addEventListener("change", changeReals, false);
-  real5.addEventListener("change", changeReals, false);
-
-  //create array of values chosen by the user
-  sineTerms = new Float32Array([
-    real1.value,
-    real2.value,
-    real3.value,
-    real4.value,
-    real5.value,
-  ]);
-
-  //initialized to 0
+  var reals = [real1, real2, real3, real4, real5];
+  sineTerms = [];
+  reals.forEach((real) => {
+    real.addEventListener("change", changeReals, false);
+    sineTerms.push(real.value);
+  });
+  for (i = 0; i < sineTerms.length; i++) {
+    console.log(sineTerms[i]);
+  }
   cosineTerms = new Float32Array(sineTerms.length);
-
-  //this creates the customised waveform
   customWaveform = context.createPeriodicWave(cosineTerms, sineTerms);
 
   //Function triggers when key is pressed
   keyboard.keyDown = function (note, frequency) {
     var osc = context.createOscillator(),
       osc2 = context.createOscillator();
-
     let type = wavePicker.options[wavePicker.selectedIndex].value;
     let type2 = wavePicker2.options[wavePicker2.selectedIndex].value;
 
@@ -80,15 +68,12 @@ window.onload = function () {
       osc.type = type;
       osc2.type = type2;
     }
-
     fadeoutGain = context.createGain();
     fadeoutGain.gain.value = masterVolume.gain.value;
-
     osc.connect(masterVolume);
     osc2.connect(masterVolume);
     masterVolume.connect(fadeoutGain);
     fadeoutGain.connect(context.destination);
-
     osc.frequency.value = frequency;
     osc2.frequency.value = frequency;
     oscillators[frequency] = [osc, osc2];
